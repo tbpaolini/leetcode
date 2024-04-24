@@ -1,55 +1,39 @@
-// Problem 41 - First Missing Positive
-// https://leetcode.com/problems/first-missing-positive/description/
-
-#include <stdlib.h>
-#include <stdint.h>
-
-static int compare_int(int* n1, int* n2)
-{
-    if (*n1 < *n2)
-    {
-        return -1;
-    }
-    else if (*n1 > *n2)
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
 int firstMissingPositive(int* nums, int numsSize)
 {
-    qsort(nums, numsSize, sizeof(int), &compare_int);
-    
-    int i = 0;
-    while (i < numsSize && nums[i] <= 0)
-    {
-        i++;
-    }
-    if (i == numsSize) return 1;
-    
-    int min_p = 1;
-    int prev = nums[i];
-    while (i < numsSize)
-    {
-        if ( (i+1 < numsSize) && (nums[i] == nums[i+1]) )
-        {
-            i++;
-            continue;
-        }
+    /*  The solution space is represented by this array:
+        {1, 2, 3, ..., numsSize - 1, numsSize}
         
-        if (nums[i++] != min_p)
+        The nums[] array is going to be reordered so all the elements in the
+        solution space get into their correct position.
+        
+        After that, the solution is the smallest element from the solution space
+        that is missing on nums[].
+    */
+    
+    for (int i = 0; i < numsSize; i++)
+    {
+        // While the current element falls in the range [1..numsSize],
+        // swap it with the element on the correct position.
+        while (
+            (nums[i] >= 1 && nums[i] <= numsSize)
+            && (nums[nums[i]-1] != nums[i])
+        )
         {
-            return min_p;
-        }
-        else
-        {
-            min_p++;
+            const int temp = nums[i];
+            nums[i] = nums[temp-1];
+            nums[temp-1] = temp;
         }
     }
     
-    return min_p;
+    // Search the array for the first missing element from the solution space
+    for (int i = 0; i < numsSize; i++)
+    {
+        if (nums[i] != i+1)
+        {
+            return i+1;
+        }
+    }
+
+    // If no element is missing, return the next positive integer
+    return numsSize + 1;
 }
